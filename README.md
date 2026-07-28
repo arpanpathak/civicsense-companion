@@ -8,6 +8,7 @@
 [![Platform](https://img.shields.io/badge/Android-Compose-brightgreen)]()
 [![Platform](https://img.shields.io/badge/iOS-SwiftUI-blue)]()
 [![gRPC](https://img.shields.io/badge/gRPC-v1.71-red)]()
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
 </div>
 
@@ -130,7 +131,8 @@ Full definition in [`proto/civicsense.proto`](proto/civicsense.proto).
 
 ## License
 
-**GNU AGPL v3** — same as the parent CivicSense project.
+**Apache 2.0** — permissive license, patent protection.  
+The parent Rust pipeline ([driving-civicsense-vision-model](https://github.com/arpanpathak/driving-civicsense-vision-model)) remains **AGPL v3**.
 
 ---
 
