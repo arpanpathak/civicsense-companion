@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CivicSense</string>
+    <string name="dashboard_title">Dashboard</string>
+    <string name="alerts_title">Alerts</string>
+    <string name="settings_title">Settings</string>
+    <string name="status_connected">Connected</string>
+    <string name="status_disconnected">Disconnected</string>
+    <string name="status_connecting">Connecting…</string>
+    <string name="status_error">Connection Error</string>
+    <string name="no_active_alerts">No active alerts</string>
+    <string name="pipeline_fps">FPS: %.1f</string>
+    <string name="critical_alerts">%d critical</string>
+    <string name="alert_count">%d active</string>
+</resources>

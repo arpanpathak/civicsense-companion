@@ -1,0 +1,114 @@
+// ──────────────────────────────────────────────────────────
+//  CivicSense — gRPC contract for Edge AI perception alerts
+//  Protocol between Rust perception pipeline + KMP companion
+// ──────────────────────────────────────────────────────────
+
+syntax = "proto3";
+
+package civicsense.v1;
+
+option java_package = "com.civicsense.shared.grpc.proto";
+option java_multiple_files = true;
+
+// ── Service ──────────────────────────────────────────────
+
+service CivicSenseAlertService {
+  // Server-streaming: Rust pipeline pushes alerts as they fire.
+  rpc SubscribeAlerts(AlertSubscription) returns (stream AlertEvent);
+
+  // Unary: fetch current snapshot of all active detections.
+  rpc GetCurrentState(Empty) returns (CivicSenseState);
+
+  // Unary: health check / connectivity probe.
+  rpc Ping(Empty) returns (Pong);
+}
+
+// ── Messages ─────────────────────────────────────────────
+
+message Empty {}
+
+message AlertSubscription {
+  // Optional filter: only receive alerts of certain severities.
+  repeated AlertSeverity severity_filter = 1;
+}
+
+message Pong {
+  int64 server_timestamp_ms = 1;
+  string version = 2;
+}
+
+message CivicSenseState {
+  repeated ActiveAlert active_alerts = 1;
+  SystemStatus system_status = 2;
+}
+
+// ── Alerts ───────────────────────────────────────────────
+
+enum AlertSeverity {
+  ALERT_SEVERITY_UNSPECIFIED = 0;
+  INFO     = 1;
+  WARNING  = 2;
+  CRITICAL = 3;
+}
+
+enum AlertCategory {
+  ALERT_CATEGORY_UNSPECIFIED = 0;
+  STOP_SIGN_VIOLATION        = 1;
+  INTERSECTION_OCCUPANCY     = 2;
+  LEFT_LANE_CAMPING          = 3;
+  NO_TURN_SIGNAL             = 4;
+  LATE_TURN_SIGNAL           = 5;
+  MULTI_LANE_CUT             = 6;
+  ROAD_HAZARD                = 7;
+  EMERGENCY_VEHICLE          = 8;
+  SPEED_WARNING              = 9;
+}
+
+message AlertEvent {
+  // Unique alert ID (UUID v4 string from the Rust pipeline).
+  string id = 1;
+
+  int64 timestamp_ms = 2;
+
+  AlertSeverity severity = 3;
+  AlertCategory category = 4;
+
+  // Human-readable alert text (e.g. "Stop sign ahead. Brake now.")
+  string title = 5;
+
+  // Longer description or contextual advice.
+  string description = 6;
+
+  // Whether this alert is still active or has been resolved.
+  bool active = 7;
+
+  // Optional: distance in meters to the trigger object.
+  optional float distance_m = 8;
+
+  // Optional: ego vehicle speed at alert time (km/h).
+  optional float ego_speed_kmh = 9;
+}
+
+message ActiveAlert {
+  string id = 1;
+  AlertCategory category = 2;
+  AlertSeverity severity = 3;
+  string title = 4;
+  int64 triggered_at_ms = 5;
+}
+
+message SystemStatus {
+  enum PipelineState {
+    PIPELINE_STATE_UNSPECIFIED = 0;
+    STARTING                   = 1;
+    RUNNING                    = 2;
+    PAUSED                     = 3;
+    ERROR                      = 4;
+    SHUTDOWN                   = 5;
+  }
+
+  PipelineState state = 1;
+  float fps = 2;
+  int64 uptime_ms = 3;
+  optional string error_message = 4;
+}
