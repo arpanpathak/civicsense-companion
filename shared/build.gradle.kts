@@ -41,6 +41,7 @@ kotlin {
 
         androidMain.dependencies {
             implementation(libs.coroutines.android)
+            implementation(libs.kotlin.test.junit)
 
             // gRPC for Android (JVM)
             implementation(libs.grpc.okhttp)
@@ -56,6 +57,9 @@ kotlin {
 
         commonTest.dependencies {
             implementation(kotlin("test"))
+            implementation(libs.coroutines.test)
+            implementation(libs.turbine)
+            implementation(libs.kotlinx.serialization.json)
         }
     }
 }

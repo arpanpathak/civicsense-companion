@@ -5,6 +5,7 @@ import com.civicsense.shared.grpc.ConnectionState
 import com.civicsense.shared.model.ActiveAlert
 import com.civicsense.shared.model.AlertEvent
 import com.civicsense.shared.model.AlertSeverity
+import com.civicsense.shared.model.CivicSenseState
 import com.civicsense.shared.model.SystemStatus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
