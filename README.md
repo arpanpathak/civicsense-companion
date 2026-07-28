@@ -20,23 +20,18 @@ A **Kotlin Multiplatform** mobile app that displays real-time detection alerts f
 
 ### Architecture
 
-```
-┌─────────────────────┐     gRPC      ┌──────────────────────────────┐
-│  Rust Pipeline      │◄────────────►│  KMP Companion App (this)    │
-│  (edge device)      │   :50051     │                              │
-│                     │              │  ┌────────────────────────┐  │
-│  YOLOv8/v11 ONNX    │  Subscribe   │  │ shared/ (KMP module)   │  │
-│  Deep SORT Tracker  │─────────────►│  │  Domain Models         │  │
-│  Alert Engine       │   stream     │  │  Service Interface     │  │
-│  gRPC Server (tonic)│              │  │  CivicSenseViewModel   │  │
-└─────────────────────┘              │  └──────┬─────────┬───────┘  │
-                                      │         │         │         │
-                                      │  ┌──────┘         └──────┐  │
-                                      │  ▼                      ▼  │
-                                      │  Android (Compose)    iOS  │
-                                      │  Dashboard + Alerts   Swift│
-                                      └──────────────────────────────┘
-```
+The Rust pipeline runs on the edge device and exposes a gRPC server. The companion app connects over the local network to receive real-time alerts.
+
+| Side | Component | Description |
+|------|-----------|-------------|
+| **Rust Pipeline** | Perception Engine | YOLOv8/v11 ONNX + Deep SORT tracking |
+| | Alert Engine | Lane / intersection / hazard detection |
+| | gRPC Server | Exposes `CivicSenseAlertService` on `:50051` |
+| **Companion App** | `shared/` KMP module | Domain models, service interface, ViewModel |
+| | Android UI | Jetpack Compose + Material 3 |
+| | iOS UI | SwiftUI |
+
+**Data flow:** Pipeline detects events -> gRPC stream (SubscribeAlerts) -> shared ViewModel -> platform UI updates
 
 ## Tech Stack
 
@@ -52,29 +47,17 @@ A **Kotlin Multiplatform** mobile app that displays real-time detection alerts f
 
 ## Project Structure
 
-```
-frontend/
-├── proto/
-│   └── civicsense.proto           # gRPC contract (Rust ↔ app)
-├── shared/                        # KMP shared module
-│   ├── src/commonMain/            # Models, service interface, ViewModel
-│   ├── src/androidMain/           # gRPC Android implementation
-│   └── src/iosMain/               # Ktor iOS implementation
-├── androidApp/                    # Jetpack Compose app
-│   └── src/main/kotlin/
-│       ├── MainActivity.kt
-│       └── ui/
-│           ├── DashboardScreen.kt
-│           └── AlertListScreen.kt
-├── iosApp/iosApp/                 # SwiftUI app
-│   ├── CivicSenseApp.swift
-│   ├── ContentView.swift
-│   ├── DashboardView.swift
-│   └── AlertListView.swift
-├── build.gradle.kts
-├── settings.gradle.kts
-└── gradle/libs.versions.toml
-```
+| Path | Purpose |
+|------|---------|
+| `proto/civicsense.proto` | gRPC contract between Rust pipeline and app |
+| `shared/src/commonMain/` | Cross-platform models, service interface, ViewModel |
+| `shared/src/androidMain/` | gRPC Android transport (OkHttp) |
+| `shared/src/iosMain/` | Ktor HTTP transport (iOS) |
+| `androidApp/` | Jetpack Compose UI (MainActivity, Dashboard, Alert Log) |
+| `iosApp/iosApp/` | SwiftUI app (ContentView, DashboardView, AlertListView) |
+| `build.gradle.kts` | Root Gradle build config |
+| `settings.gradle.kts` | Gradle settings with module includes |
+| `gradle/libs.versions.toml` | Version catalog for dependencies |
 
 ## Getting Started
 
